@@ -6,17 +6,27 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class Repartiteur extends Thread {
+public class client extends Thread {
     
     Socket socket;
-    private int numClient;
-    private ServeurMultiClient server;
+    private int nbrC;
+    private serveur server;
 
-    public Repartiteur(Socket socket, int numClient, ServeurMultiClient server) {
+    public client(Socket socket, int nbrC, serveur server) {
         super();
         this.socket = socket;
-        this.numClient = numClient;
+        this.nbrC = nbrC;
         this.server = server;
+    }
+
+    public void notifivtion(String message) {
+        try {
+            OutputStream output = socket.getOutputStream();
+            PrintWriter pw = new PrintWriter(output, true);
+            pw.println(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void run() {
@@ -27,23 +37,22 @@ public class Repartiteur extends Thread {
             OutputStream output = socket.getOutputStream();
             PrintWriter pw = new PrintWriter(output, true);
 
-            pw.println("Welcome! You are client number: " + numClient);
-            pw.println("Guess the secret number.");
+            pw.println("Welcome! You are  " + nbrC);
+            pw.println("guess the nbr");
 
             while (true) {
                 String guessStr = br.readLine();
                 int guess = Integer.parseInt(guessStr);
 
-                // Printing the numver
-                System.out.println("Client " + numClient + " guessed: " + guess);
+               
 
-                if (guess < server.getSecretNumber()) {
-                    pw.println("The secret number is higher.");
-                } else if (guess > server.getSecretNumber()) {
-                    pw.println("The secret number is lower.");
+                if (guess < server.getsbrj()) {
+                    pw.println("mor hight.");
+                } else if (guess > server.getsbrj()) {
+                    pw.println("mor low");
                 } else {
                     // Correct
-                    pw.println("Congratulations! You have won! The secret number is: "+guess);
+                    pw.println("Congratulations!: "+guess);
                     server.announceWinner(socket.getRemoteSocketAddress().toString());
 
                     server.closeAllConnections();
@@ -55,13 +64,5 @@ public class Repartiteur extends Thread {
         }
     }
 
-    public void sendAnnouncement(String message) {
-        try {
-            OutputStream output = socket.getOutputStream();
-            PrintWriter pw = new PrintWriter(output, true);
-            pw.println(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
 }
